@@ -1,1 +1,5 @@
-
+{
+  "projects": {
+    "default": "calc-pwa-1730b"
+  }
+}

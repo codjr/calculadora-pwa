@@ -1,4 +1,5 @@
 {
+  "id": "/calculadora-pwa",
   "name": "Calculadora PWA",
   "short_name": "Calc",
   "description": "Calculadora rápida, offline e instalável, com integração ao navegador e suporte a compartilhamento direto.",
@@ -27,28 +28,15 @@
   ],
 
   "related_applications": [
-    {
-      "platform": "webapp",
-      "url": "https://codjr.github.io/calculadora-pwa/"
-    },
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=calc.pwa",
-      "id": "calc.pwa"
-    }
+    { "platform": "webapp", "url": "https://codjr.github.io/calculadora-pwa/" }
   ],
-
   "prefer_related_applications": false,
 
   "share_target": {
     "action": "https://codjr.github.io/calculadora-pwa/index.html",
     "method": "GET",
     "enctype": "application/x-www-form-urlencoded",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
+    "params": { "title": "title", "text": "text", "url": "url" }
   },
 
   "iarc_rating_id": "e10",
@@ -63,38 +51,18 @@
   ],
 
   "note_taking": {
-    "new_note_url": "https://codjr.github.io/calculadora-pwa/index.html",
-    "share_target": {
-      "action": "https://codjr.github.io/calculadora-pwa/index.html",
-      "method": "GET",
-      "enctype": "application/x-www-form-urlencoded",
-      "params": {
-        "title": "t",
-        "text": "n"
-      }
-    }
+    "new_note_url": "https://codjr.github.io/calculadora-pwa/index.html"
   },
 
-  "scope_extensions": [
-    {
-      "origin": "https://codjr.github.io"
-    }
-  ],
+  "scope_extensions": [{ "origin": "https://codjr.github.io" }],
 
-  "edge_side_panel": {
-    "preferred_width": 420
-  },
+  "edge_side_panel": { "preferred_width": 420 },
 
   "screenshots": [
     {
       "src": "https://codjr.github.io/calculadora-pwa/icons/screen1.png",
-      "type": "image/png",
-      "sizes": "1080x1920"
-    },
-    {
-      "src": "https://codjr.github.io/calculadora-pwa/icons/screen2.png",
-      "type": "image/png",
-      "sizes": "1080x1920"
+      "sizes": "1080x1920",
+      "type": "image/png"
     }
   ],
 
@@ -110,13 +78,23 @@
       "name": "Novo cálculo",
       "short_name": "Novo",
       "url": "https://codjr.github.io/calculadora-pwa/index.html?novo=true",
-      "icons": [{ "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Histórico",
       "short_name": "Histórico",
       "url": "https://codjr.github.io/calculadora-pwa/index.html?historico=true",
-      "icons": [{ "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

@@ -1,122 +1,54 @@
 {
-  "id": "/calculadora-pwa/",
   "name": "Calculadora PWA",
-  "short_name": "Calculadora",
-  "description": "Uma calculadora moderna, rápida e que funciona offline. Instale e use como um app, sem precisar abrir o navegador.",
-  "start_url": "/calculadora-pwa/index.html",
-  "scope": "/calculadora-pwa/",
+  "short_name": "Calc",
+  "description": "Calculadora rápida, offline e instalável.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "fullscreen", "minimal-ui"],
-  "orientation": "portrait",
   "background_color": "#111827",
   "theme_color": "#111827",
-  "lang": "pt-BR",
-  "dir": "ltr",
-  "categories": ["utilities", "productivity", "tools"],
+
   "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+
+  "related_applications": [
     {
-      "src": "icons/icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/icon-256.png",
-      "sizes": "256x256",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "platform": "webapp",
+      "url": "https://codjr.github.io/calculadora-pwa/"
     }
   ],
-  "screenshots": [
-    {
-      "src": "screenshots/calculadora-light.png",
-      "sizes": "800x600",
-      "type": "image/png",
-      "label": "Tela principal da calculadora - modo claro"
-    },
-    {
-      "src": "screenshots/calculadora-dark.png",
-      "sizes": "800x600",
-      "type": "image/png",
-      "label": "Tela principal da calculadora - modo escuro"
+
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "t",
+      "text": "q",
+      "url": "u"
     }
-  ],
-  "shortcuts": [
-    {
-      "name": "Nova operação",
-      "short_name": "Novo",
-      "description": "Limpar e iniciar uma nova operação",
-      "url": "/calculadora-pwa/index.html#nova",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Últimos cálculos",
-      "short_name": "Histórico",
-      "description": "Ver resultados anteriores",
-      "url": "/calculadora-pwa/index.html#historico",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/calculadora-pwa/index.html",
-      "accept": {
-        "text/plain": [".txt"]
-      }
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+calc",
-      "url": "/calculadora-pwa/index.html?op=%s"
-    }
-  ],
-  "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
   },
-  "edge_side_panel": {
-    "preferred_width": 480
+
+  "iarc_rating_id": "e10",
+
+  "widgets": [
+    {
+      "name": "Calculadora Rápida",
+      "description": "Mini-calculadora com histórico básico.",
+      "src": "./index.html",
+      "sizes": "2x2"
+    }
+  ],
+
+  "note_taking": {
+    "new_note_url": "./index.html"
   },
+
   "scope_extensions": [
-    { "origin": "https://codjr.github.io" }
-  ],
-  "prefer_related_applications": false,
-  "related_applications": []
+    {
+      "origin": "https://codjr.github.io"
+    }
+  ]
 }

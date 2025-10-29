@@ -1,33 +1,53 @@
 {
   "name": "Calculadora PWA",
   "short_name": "Calc",
-  "description": "Calculadora rápida, offline e instalável.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "Calculadora rápida, offline e instalável, com integração ao navegador e suporte a compartilhamento direto.",
+  "start_url": "https://codjr.github.io/calculadora-pwa/index.html",
+  "scope": "https://codjr.github.io/calculadora-pwa/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#111827",
   "theme_color": "#111827",
+  "lang": "pt-BR",
+  "categories": ["productivity", "utilities", "education"],
 
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://codjr.github.io/calculadora-pwa/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
 
   "related_applications": [
     {
       "platform": "webapp",
       "url": "https://codjr.github.io/calculadora-pwa/"
+    },
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=calc.pwa",
+      "id": "calc.pwa"
     }
   ],
 
+  "prefer_related_applications": false,
+
   "share_target": {
-    "action": "./index.html",
+    "action": "https://codjr.github.io/calculadora-pwa/index.html",
     "method": "GET",
     "enctype": "application/x-www-form-urlencoded",
     "params": {
-      "title": "t",
-      "text": "q",
-      "url": "u"
+      "title": "title",
+      "text": "text",
+      "url": "url"
     }
   },
 
@@ -35,20 +55,68 @@
 
   "widgets": [
     {
-      "name": "Calculadora Rápida",
-      "description": "Mini-calculadora com histórico básico.",
-      "src": "./index.html",
+      "name": "Mini Calculadora",
+      "description": "Widget compacto para cálculos rápidos",
+      "src": "https://codjr.github.io/calculadora-pwa/index.html",
       "sizes": "2x2"
     }
   ],
 
   "note_taking": {
-    "new_note_url": "./index.html"
+    "new_note_url": "https://codjr.github.io/calculadora-pwa/index.html",
+    "share_target": {
+      "action": "https://codjr.github.io/calculadora-pwa/index.html",
+      "method": "GET",
+      "enctype": "application/x-www-form-urlencoded",
+      "params": {
+        "title": "t",
+        "text": "n"
+      }
+    }
   },
 
   "scope_extensions": [
     {
       "origin": "https://codjr.github.io"
+    }
+  ],
+
+  "edge_side_panel": {
+    "preferred_width": 420
+  },
+
+  "screenshots": [
+    {
+      "src": "https://codjr.github.io/calculadora-pwa/icons/screen1.png",
+      "type": "image/png",
+      "sizes": "1080x1920"
+    },
+    {
+      "src": "https://codjr.github.io/calculadora-pwa/icons/screen2.png",
+      "type": "image/png",
+      "sizes": "1080x1920"
+    }
+  ],
+
+  "protocol_handlers": [
+    {
+      "protocol": "web+calc",
+      "url": "https://codjr.github.io/calculadora-pwa/index.html?expr=%s"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Novo cálculo",
+      "short_name": "Novo",
+      "url": "https://codjr.github.io/calculadora-pwa/index.html?novo=true",
+      "icons": [{ "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Histórico",
+      "short_name": "Histórico",
+      "url": "https://codjr.github.io/calculadora-pwa/index.html?historico=true",
+      "icons": [{ "src": "https://codjr.github.io/calculadora-pwa/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

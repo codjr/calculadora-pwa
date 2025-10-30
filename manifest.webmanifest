@@ -1,11 +1,19 @@
 {
+  "id": "/",
   "name": "Conversor de Imagens",
   "short_name": "Conversor",
-  "description": "PWA para converter e gerar ícones em múltiplos formatos e tamanhos.",
+  "description": "Aplicativo PWA para converter e gerar ícones em múltiplos formatos e tamanhos diretamente no navegador.",
+  "lang": "pt-BR",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#004aad",
   "theme_color": "#004aad",
+  "categories": ["tools", "productivity", "utilities", "graphics"],
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "icons": [
     { "src": "icons/imagem_icon_48x48.png", "sizes": "48x48", "type": "image/png" },
     { "src": "icons/imagem_icon_72x72.png", "sizes": "72x72", "type": "image/png" },
@@ -17,5 +25,33 @@
     { "src": "icons/imagem_icon_256x256.png", "sizes": "256x256", "type": "image/png" },
     { "src": "icons/imagem_icon_384x384.png", "sizes": "384x384", "type": "image/png" },
     { "src": "icons/imagem_icon_512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/imagem_icon_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Tela principal do Conversor de Imagens"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Conversão",
+      "short_name": "Converter",
+      "description": "Converter uma nova imagem rapidamente",
+      "url": "./index.html#converter",
+      "icons": [
+        { "src": "icons/imagem_icon_192x192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Gerar Ícones PWA",
+      "short_name": "Gerar Ícones",
+      "description": "Gerar ícones PWA padrão automaticamente",
+      "url": "./index.html#gerar",
+      "icons": [
+        { "src": "icons/imagem_icon_192x192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    }
   ]
 }

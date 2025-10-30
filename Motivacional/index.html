@@ -26,6 +26,15 @@ button:hover{background:#22d3ee;transform:translateY(-1px)}
 input[type=time]{border-radius:8px;border:none;padding:6px 10px;
   font-size:1em;margin-top:8px}
 .small{font-size:.85em;color:#94a3b8;margin-top:10px}
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#0ea5e9;color:#fff;padding:10px 16px;border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.4);animation:fadeInOut 2s ease forwards;
+}
+@keyframes fadeInOut{0%{opacity:0;transform:translate(-50%,10px)}
+20%{opacity:1;transform:translate(-50%,0)}
+80%{opacity:1}
+100%{opacity:0;transform:translate(-50%,10px)}}
 </style>
 </head>
 <body>
@@ -41,7 +50,7 @@ input[type=time]{border-radius:8px;border:none;padding:6px 10px;
   <label for="hora">🕗 Horário da notificação:</label><br>
   <input type="time" id="hora" value="08:00">
 </div>
-<div class="small">Funciona offline e envia uma frase nova todos os dias.</div>
+<div class="small">Funciona offline, atualiza automaticamente e envia uma frase nova todos os dias.</div>
 
 <script>
 /* === Frases base === */
@@ -62,6 +71,7 @@ function gerarFrase(){
   const f=frases[Math.floor(Math.random()*frases.length)];
   fraseEl.textContent=f;
   localStorage.setItem("fraseHoje",f);
+  toast("Nova frase gerada!");
 }
 document.getElementById("btn").onclick=gerarFrase;
 
@@ -75,10 +85,26 @@ document.getElementById("btnVoz").onclick=()=>{
   synth.speak(voz);
 };
 
+/* === Toast simples === */
+function toast(msg){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
 /* === Registrar Service Worker === */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("service-worker.js")
   .then(()=>console.log("✅ Service Worker registrado"));
+  // Atualização automática ao detectar nova versão
+  navigator.serviceWorker.addEventListener("message",e=>{
+    if(e.data && e.data.type==="UPDATE_AVAILABLE"){
+      toast("🔄 Nova versão disponível, atualizando...");
+      setTimeout(()=>location.reload(),1000);
+    }
+  });
 }
 
 /* === Notificações === */
@@ -92,27 +118,26 @@ btnNoti.onclick=async()=>{
   if(localStorage.getItem(KEY_ACTIVE)==="1"){
     localStorage.removeItem(KEY_ACTIVE);
     btnNoti.textContent="🔕 Ativar Notificações";
-    alert("Notificações desativadas.");
+    toast("Notificações desativadas");
   }else{
     const perm=await Notification.requestPermission();
     if(perm==="granted"){
       localStorage.setItem(KEY_ACTIVE,"1");
       btnNoti.textContent="🔔 Desativar Notificações";
       registrarPeriodicSync();
-      alert("Notificações ativadas! Você receberá uma frase diária.");
-    }else alert("Permita notificações para ativar o lembrete diário.");
+      toast("Notificações ativadas!");
+    }else toast("Permita notificações para ativar o lembrete diário");
   }
 };
 
 horaInput.onchange=()=>{
   localStorage.setItem(KEY_HORA,horaInput.value);
   if(localStorage.getItem(KEY_ACTIVE)==="1"){
-    alert("Horário atualizado! Próxima notificação às "+horaInput.value);
+    toast("Horário salvo: "+horaInput.value);
     agendarNotificacao();
   }
 };
 
-/* === Funções de notificação === */
 function agendarNotificacao(){
   if(localStorage.getItem(KEY_ACTIVE)!=="1")return;
   const hora=localStorage.getItem(KEY_HORA)||"08:00";
@@ -142,12 +167,9 @@ function mostrarNotificacao(){
 btnTestar.onclick=()=>{
   const f=frases[Math.floor(Math.random()*frases.length)];
   navigator.serviceWorker.getRegistration().then(reg=>{
-    reg.showNotification("📢 Teste de Notificação",{
-      body:f,
-      icon:"icons/imagem_icon_192x192.png",
-      badge:"icons/imagem_icon_96x96.png"
-    });
+    reg.showNotification("📢 Teste de Notificação",{body:f,icon:"icons/imagem_icon_192x192.png"});
   });
+  toast("Notificação de teste enviada!");
 };
 
 /* === Background Sync diário === */
@@ -157,9 +179,7 @@ async function registrarPeriodicSync(){
       const reg=await navigator.serviceWorker.ready;
       const tags=await reg.periodicSync.getTags();
       if(!tags.includes("frase-diaria")){
-        await reg.periodicSync.register("frase-diaria",{
-          minInterval:24*60*60*1000
-        });
+        await reg.periodicSync.register("frase-diaria",{minInterval:24*60*60*1000});
         console.log("✅ Periodic Sync registrado (frase-diaria)");
       }
     }catch(err){

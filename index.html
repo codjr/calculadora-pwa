@@ -1,75 +1,109 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conversor de Imagens PWA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conversor de Imagens PWA</title>
 
-<!-- Manifesto PWA -->
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#004aad">
-<link rel="icon" type="image/png" href="icons/imagem_icon_192x192.png">
+  <!-- 🧭 Manifesto PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
 
-<style>
-:root {
-  --cor-primaria: #004aad;
-  --cor-primaria-hover: #003b8e;
-  --cor-fundo: #f5f7fa;
-  --cor-texto: #1f2937;
-  --cor-card: #ffffff;
-}
-body {
-  font-family: "Inter", "Segoe UI", sans-serif;
-  background: var(--cor-fundo);
-  color: var(--cor-texto);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  min-height: 100vh;
-}
-h1 {
-  color: var(--cor-primaria);
-  margin-bottom: 1rem;
-  text-align: center;
-}
-.card {
-  background: var(--cor-card);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-}
-input[type="file"], select, input[type="number"], button {
-  width: 100%;
-  padding: 10px;
-  margin: 0.5rem 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-button {
-  background: var(--cor-primaria);
-  color: #fff;
-  cursor: pointer;
-  transition: 0.3s;
-}
-button:hover {
-  background: var(--cor-primaria-hover);
-}
-img {
-  margin-top: 1rem;
-  max-width: 100%;
-  border-radius: 10px;
-}
-footer {
-  margin-top: 2rem;
-  font-size: 0.85rem;
-  opacity: 0.7;
-  text-align: center;
-}
-</style>
+  <!-- 📱 Compatibilidade iOS -->
+  <meta name="application-name" content="Conversor de Imagens">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Conversor">
+  <link rel="apple-touch-icon" href="icons/imagem_icon_192x192.png">
+
+  <!-- 🎨 Aparência -->
+  <meta name="theme-color" content="#004aad">
+  <meta name="description" content="PWA para converter e gerar ícones em múltiplos formatos e tamanhos.">
+  <link rel="icon" type="image/png" href="icons/imagem_icon_192x192.png">
+
+  <style>
+    :root {
+      --cor-primaria: #004aad;
+      --cor-primaria-hover: #003b8e;
+      --cor-fundo: #f5f7fa;
+      --cor-texto: #1f2937;
+      --cor-card: #ffffff;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", sans-serif;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--cor-primaria);
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: var(--cor-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    input[type="file"], select, input[type="number"], button {
+      width: 100%;
+      padding: 10px;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: var(--cor-primaria);
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: var(--cor-primaria-hover);
+    }
+
+    img {
+      margin-top: 1rem;
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    #progress {
+      width: 100%;
+      background: #e5e7eb;
+      border-radius: 8px;
+      height: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+      display: none;
+    }
+
+    #progress-bar {
+      height: 100%;
+      background: var(--cor-primaria);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
   <h1>Conversor e Gerador de Ícones PWA</h1>
@@ -100,6 +134,11 @@ footer {
 
     <button id="convertBtn">Converter e Baixar</button>
     <button id="generateAllBtn">Gerar Ícones PWA (48–512px)</button>
+
+    <div id="progress">
+      <div id="progress-bar"></div>
+    </div>
+
     <div id="preview"></div>
   </div>
 
@@ -108,7 +147,8 @@ footer {
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log("✅ Service Worker registrado"));
+    .then(() => console.log("✅ Service Worker registrado com sucesso!"))
+    .catch(err => console.error("Erro no SW:", err));
 }
 
 const upload = document.getElementById("upload");
@@ -116,6 +156,8 @@ const format = document.getElementById("format");
 const sizeSelect = document.getElementById("size");
 const customSizeDiv = document.getElementById("customSize");
 const preview = document.getElementById("preview");
+const progress = document.getElementById("progress");
+const progressBar = document.getElementById("progress-bar");
 let currentImage = null;
 
 // Mostrar campos personalizados
@@ -123,7 +165,7 @@ sizeSelect.addEventListener("change", () => {
   customSizeDiv.style.display = sizeSelect.value === "custom" ? "block" : "none";
 });
 
-// Exibir preview da imagem
+// Exibir preview
 upload.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -155,12 +197,10 @@ function converterEbaixar(img, formato, largura, altura, nomeExtra = "") {
   a.click();
 }
 
-// Botão único de conversão
+// Converter individual
 document.getElementById("convertBtn").addEventListener("click", () => {
   if (!currentImage) return alert("Selecione uma imagem primeiro!");
-
-  let width = currentImage.width;
-  let height = currentImage.height;
+  let width = currentImage.width, height = currentImage.height;
 
   if (sizeSelect.value !== "original") {
     if (sizeSelect.value === "custom") {
@@ -170,26 +210,31 @@ document.getElementById("convertBtn").addEventListener("click", () => {
       width = height = parseInt(sizeSelect.value);
     }
   }
-
   converterEbaixar(currentImage, format.value, width, height);
 });
 
-// Gerar todos os tamanhos padrão de ícones PWA
-document.getElementById("generateAllBtn").addEventListener("click", () => {
+// Gerar todos os ícones com barra de progresso
+document.getElementById("generateAllBtn").addEventListener("click", async () => {
   if (!currentImage) return alert("Selecione uma imagem primeiro!");
 
   const tamanhos = [48, 72, 96, 128, 144, 152, 192, 256, 384, 512];
   const formato = "image/png";
+  progress.style.display = "block";
+  progressBar.style.width = "0%";
 
-  tamanhos.forEach((tamanho, i) => {
-    setTimeout(() => {
-      converterEbaixar(currentImage, formato, tamanho, tamanho, `_icon`);
-    }, i * 300);
-  });
+  for (let i = 0; i < tamanhos.length; i++) {
+    const tamanho = tamanhos[i];
+    converterEbaixar(currentImage, formato, tamanho, tamanho, `_icon`);
+    const percent = ((i + 1) / tamanhos.length) * 100;
+    progressBar.style.width = percent + "%";
+    await new Promise(r => setTimeout(r, 200));
+  }
 
-  alert("🎉 Todos os ícones foram gerados e baixados!");
+  setTimeout(() => {
+    progress.style.display = "none";
+    alert("🎉 Todos os ícones foram gerados e baixados!");
+  }, 500);
 });
 </script>
 </body>
-</html>/body>
 </html>

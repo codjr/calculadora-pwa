@@ -35,6 +35,7 @@ input[type=time]{border-radius:8px;border:none;padding:6px 10px;
   <button id="btn">Nova Frase</button>
   <button id="btnVoz">🔊 Ler Frase</button><br>
   <button id="btnNoti">🔔 Ativar Notificações</button>
+  <button id="btnTestar">📢 Testar Notificação</button>
 </div>
 <div style="margin-top:12px">
   <label for="hora">🕗 Horário da notificação:</label><br>
@@ -82,6 +83,7 @@ if("serviceWorker" in navigator){
 
 /* === Notificações === */
 const btnNoti=document.getElementById("btnNoti");
+const btnTestar=document.getElementById("btnTestar");
 const horaInput=document.getElementById("hora");
 const KEY_ACTIVE="notiAtiva",KEY_HORA="notiHora";
 horaInput.value=localStorage.getItem(KEY_HORA)||"08:00";
@@ -96,7 +98,7 @@ btnNoti.onclick=async()=>{
     if(perm==="granted"){
       localStorage.setItem(KEY_ACTIVE,"1");
       btnNoti.textContent="🔔 Desativar Notificações";
-      agendarNotificacao();
+      registrarPeriodicSync();
       alert("Notificações ativadas! Você receberá uma frase diária.");
     }else alert("Permita notificações para ativar o lembrete diário.");
   }
@@ -110,6 +112,7 @@ horaInput.onchange=()=>{
   }
 };
 
+/* === Funções de notificação === */
 function agendarNotificacao(){
   if(localStorage.getItem(KEY_ACTIVE)!=="1")return;
   const hora=localStorage.getItem(KEY_HORA)||"08:00";
@@ -132,13 +135,46 @@ function mostrarNotificacao(){
       badge:"icons/imagem_icon_96x96.png"
     });
   });
-  // reagendar para o próximo dia
   setTimeout(mostrarNotificacao,24*60*60*1000);
+}
+
+/* === Botão de teste imediato === */
+btnTestar.onclick=()=>{
+  const f=frases[Math.floor(Math.random()*frases.length)];
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    reg.showNotification("📢 Teste de Notificação",{
+      body:f,
+      icon:"icons/imagem_icon_192x192.png",
+      badge:"icons/imagem_icon_96x96.png"
+    });
+  });
+};
+
+/* === Background Sync diário === */
+async function registrarPeriodicSync(){
+  if('periodicSync' in navigator.serviceWorker){
+    try{
+      const reg=await navigator.serviceWorker.ready;
+      const tags=await reg.periodicSync.getTags();
+      if(!tags.includes("frase-diaria")){
+        await reg.periodicSync.register("frase-diaria",{
+          minInterval:24*60*60*1000
+        });
+        console.log("✅ Periodic Sync registrado (frase-diaria)");
+      }
+    }catch(err){
+      console.warn("⚠️ periodicSync não disponível",err);
+      agendarNotificacao();
+    }
+  }else{
+    console.log("⏳ periodicSync não suportado, usando fallback.");
+    agendarNotificacao();
+  }
 }
 
 if(localStorage.getItem(KEY_ACTIVE)==="1"){
   btnNoti.textContent="🔔 Desativar Notificações";
-  agendarNotificacao();
+  registrarPeriodicSync();
 }
 </script>
 </body>

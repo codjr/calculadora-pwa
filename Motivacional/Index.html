@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Frases Infinitas Diárias</title>
+<meta name="theme-color" content="#0ea5e9"/>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" sizes="192x192" href="icons/imagem_icon_192x192.png">
+
+<style>
+body{
+  margin:0;font-family:system-ui,Inter,Roboto;
+  background:#0b1220;color:#e5e7eb;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:100vh;text-align:center;padding:20px;
+}
+h1{color:#38bdf8;font-size:1.8em;margin:0 0 10px}
+p{font-size:1.2em;line-height:1.4em;margin:20px 0}
+button{
+  background:#38bdf8;color:#00111a;border:none;border-radius:8px;
+  padding:10px 16px;font-size:1em;font-weight:600;cursor:pointer;
+  margin:4px;transition:.2s;
+}
+button:hover{background:#22d3ee;transform:translateY(-1px)}
+input[type=time]{border-radius:8px;border:none;padding:6px 10px;
+  font-size:1em;margin-top:8px}
+.small{font-size:.85em;color:#94a3b8;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>✨ Frases Infinitas Diárias</h1>
+<p id="frase">Gerando sua frase...</p>
+<div>
+  <button id="btn">Nova Frase</button>
+  <button id="btnVoz">🔊 Ler Frase</button><br>
+  <button id="btnNoti">🔔 Ativar Notificações</button>
+</div>
+<div style="margin-top:12px">
+  <label for="hora">🕗 Horário da notificação:</label><br>
+  <input type="time" id="hora" value="08:00">
+</div>
+<div class="small">Funciona offline e envia uma frase nova todos os dias.</div>
+
+<script>
+/* === Frases base === */
+const frases=[
+  "Acredite em você e vá além! 🚀",
+  "A disciplina vence o cansaço. 💪",
+  "Hoje é o dia perfeito para começar! 🌟",
+  "Você é capaz de mudar tudo! 🔥",
+  "Um passo de cada vez. 🧭",
+  "Persistência constrói resultados. 🏁",
+  "A ação cura a dúvida. 🎯",
+  "O impossível só existe até ser feito. ✨"
+];
+const fraseEl=document.getElementById("frase");
+const fraseSalva=localStorage.getItem("fraseHoje");
+fraseEl.textContent=fraseSalva||frases[0];
+function gerarFrase(){
+  const f=frases[Math.floor(Math.random()*frases.length)];
+  fraseEl.textContent=f;
+  localStorage.setItem("fraseHoje",f);
+}
+document.getElementById("btn").onclick=gerarFrase;
+
+/* === Leitura por voz === */
+const synth=window.speechSynthesis;
+document.getElementById("btnVoz").onclick=()=>{
+  const texto=fraseEl.textContent;
+  if(synth.speaking) synth.cancel();
+  const voz=new SpeechSynthesisUtterance(texto);
+  voz.lang="pt-BR";
+  synth.speak(voz);
+};
+
+/* === Registrar Service Worker === */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("service-worker.js")
+  .then(()=>console.log("✅ Service Worker registrado"));
+}
+
+/* === Notificações === */
+const btnNoti=document.getElementById("btnNoti");
+const horaInput=document.getElementById("hora");
+const KEY_ACTIVE="notiAtiva",KEY_HORA="notiHora";
+horaInput.value=localStorage.getItem(KEY_HORA)||"08:00";
+
+btnNoti.onclick=async()=>{
+  if(localStorage.getItem(KEY_ACTIVE)==="1"){
+    localStorage.removeItem(KEY_ACTIVE);
+    btnNoti.textContent="🔕 Ativar Notificações";
+    alert("Notificações desativadas.");
+  }else{
+    const perm=await Notification.requestPermission();
+    if(perm==="granted"){
+      localStorage.setItem(KEY_ACTIVE,"1");
+      btnNoti.textContent="🔔 Desativar Notificações";
+      agendarNotificacao();
+      alert("Notificações ativadas! Você receberá uma frase diária.");
+    }else alert("Permita notificações para ativar o lembrete diário.");
+  }
+};
+
+horaInput.onchange=()=>{
+  localStorage.setItem(KEY_HORA,horaInput.value);
+  if(localStorage.getItem(KEY_ACTIVE)==="1"){
+    alert("Horário atualizado! Próxima notificação às "+horaInput.value);
+    agendarNotificacao();
+  }
+};
+
+function agendarNotificacao(){
+  if(localStorage.getItem(KEY_ACTIVE)!=="1")return;
+  const hora=localStorage.getItem(KEY_HORA)||"08:00";
+  const [h,m]=hora.split(":").map(Number);
+  const agora=new Date();
+  const proxima=new Date();
+  proxima.setHours(h,m,0,0);
+  if(proxima<agora)proxima.setDate(proxima.getDate()+1);
+  const delay=proxima-agora;
+  console.log("⏳ Próxima notificação em",Math.round(delay/1000/60),"min");
+  setTimeout(()=>mostrarNotificacao(),delay);
+}
+
+function mostrarNotificacao(){
+  const f=frases[Math.floor(Math.random()*frases.length)];
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    reg.showNotification("Frase do Dia 🌞",{
+      body:f,
+      icon:"icons/imagem_icon_192x192.png",
+      badge:"icons/imagem_icon_96x96.png"
+    });
+  });
+  // reagendar para o próximo dia
+  setTimeout(mostrarNotificacao,24*60*60*1000);
+}
+
+if(localStorage.getItem(KEY_ACTIVE)==="1"){
+  btnNoti.textContent="🔔 Desativar Notificações";
+  agendarNotificacao();
+}
+</script>
+</body>
+</html>

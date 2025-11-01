@@ -1,60 +1,192 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Velocímetro Offline</title>
-
-  <!-- Manifesto JSON -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b1220">
-  <link rel="icon" href="icon-192.png">
-
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: radial-gradient(circle at center, #0d1830, #060c19);
-      color: #e6eef6;
-      font-family: "Inter", sans-serif;
-    }
-    .card {
-      width: 340px;
-      background: #0b1220;
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-    canvas { width: 100%; }
-    .speed { font-size: 64px; margin: 8px 0; font-weight: 800; }
-    .unit { font-size: 16px; color: #94a3b8; }
-    button {
-      border: 0; border-radius: 10px; padding: 10px 14px;
-      font-weight: 700; cursor: pointer; margin: 5px;
-    }
-    .btn { background: #06b6d4; color: #022; }
-    .ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.14); }
-    .version { margin-top: 10px; font-size: 12px; color: #94a3b8; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Velocímetro Analógico (MPH/km/h)</title>
+<style>
+body {
+  margin: 0;
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+  flex-direction: column;
+}
+h1 { margin-bottom: 10px; font-weight: 600; }
+canvas {
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #000 0%, #050505 60%, #111 100%);
+  box-shadow: inset 0 0 15px #000, 0 0 20px #222;
+}
+#speed {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-top: 15px;
+}
+#status {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h2>Velocímetro</h2>
-    <canvas id="gauge" width="320" height="200"></canvas>
-    <div class="speed"><span id="speedValue">0</span><span class="unit"> km/h</span></div>
-    <div>
-      <button class="btn" id="startBtn">Iniciar</button>
-      <button class="ghost" id="stopBtn">Parar</button>
-    </div>
-    <p id="status">Parado</p>
-    <p class="version" id="version"></p>
-  </div>
+<h1>Velocímetro</h1>
+<canvas id="dial" width="340" height="340"></canvas>
+<div id="speed">0 mph</div>
+<div id="status">Inicializando GPS...</div>
 
-  <!-- JS principal -->
-  <script src="app.js"></script>
+<script>
+const canvas = document.getElementById("dial");
+const ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+const CX = W / 2, CY = H / 2, R = W * 0.42;
+let current = 0, target = 0, v = 0;
+const MAX_MPH = 120, MAX_KMH = 200;
+const START = 0.75 * Math.PI, SWEEP = 1.5 * Math.PI;
+
+// ===== Desenho do velocímetro =====
+function drawDial(speed) {
+  ctx.clearRect(0, 0, W, H);
+
+  // Borda cromada
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, "#ccc");
+  grad.addColorStop(0.5, "#888");
+  grad.addColorStop(1, "#ccc");
+  ctx.beginPath();
+  ctx.arc(CX, CY, R + 10, 0, 2 * Math.PI);
+  ctx.lineWidth = 12;
+  ctx.strokeStyle = grad;
+  ctx.stroke();
+
+  // Fundo preto
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, 2 * Math.PI);
+  const bgGrad = ctx.createRadialGradient(CX, CY, 10, CX, CY, R);
+  bgGrad.addColorStop(0, "#111");
+  bgGrad.addColorStop(1, "#000");
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(CX, CY);
+
+  // Marcações externas (MPH)
+  const steps = 12; // 0–120 mph
+  for (let i = 0; i <= steps; i++) {
+    const ang = START + (i / steps) * SWEEP;
+    const x1 = Math.cos(ang) * (R - 10);
+    const y1 = Math.sin(ang) * (R - 10);
+    const x2 = Math.cos(ang) * (R - 25);
+    const y2 = Math.sin(ang) * (R - 25);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#fff";
+    ctx.stroke();
+
+    // números mph
+    const tx = Math.cos(ang) * (R - 40);
+    const ty = Math.sin(ang) * (R - 40);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(i * 10, tx, ty);
+  }
+
+  // Marcações internas (km/h em vermelho)
+  const kmSteps = 10;
+  ctx.strokeStyle = "#f33";
+  for (let i = 0; i <= kmSteps; i++) {
+    const ang = START + (i / kmSteps) * SWEEP;
+    const x1 = Math.cos(ang) * (R - 35);
+    const y1 = Math.sin(ang) * (R - 35);
+    const x2 = Math.cos(ang) * (R - 50);
+    const y2 = Math.sin(ang) * (R - 50);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Ponteiro
+  const ang = START + Math.min(speed / MAX_MPH, 1) * SWEEP;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(ang) * (R - 40), Math.sin(ang) * (R - 40));
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#e33";
+  ctx.shadowColor = "#e33";
+  ctx.shadowBlur = 10;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Centro
+  ctx.beginPath();
+  ctx.arc(0, 0, 8, 0, 2 * Math.PI);
+  ctx.fillStyle = "#333";
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#666";
+  ctx.stroke();
+
+  // Texto central
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 18px Arial";
+  ctx.fillText("MPH", 0, -20);
+  ctx.fillStyle = "#f33";
+  ctx.font = "12px Arial";
+  ctx.fillText("km/h", 0, 20);
+
+  ctx.restore();
+}
+
+// ===== Animação suave =====
+function animate() {
+  const dt = 0.016;
+  const a = 10 * (target - current) - 5 * v;
+  v += a * dt;
+  current += v * dt;
+  drawDial(current);
+  document.getElementById("speed").textContent = Math.round(current) + " mph";
+  requestAnimationFrame(animate);
+}
+
+// ===== GPS =====
+if ("geolocation" in navigator) {
+  navigator.geolocation.watchPosition(
+    (pos) => {
+      if (pos.coords.speed != null) {
+        // velocidade em m/s -> mph
+        const mph = pos.coords.speed * 2.23694;
+        target = Math.min(mph, MAX_MPH);
+        const hora = new Date(pos.timestamp).toLocaleTimeString("pt-BR");
+        document.getElementById("status").textContent = "Atualizado às " + hora;
+      } else {
+        document.getElementById("status").textContent = "Aguardando movimento...";
+      }
+    },
+    (err) => {
+      document.getElementById("status").textContent = "Erro: " + err.message;
+    },
+    { enableHighAccuracy: false, maximumAge: 10000, timeout: 10000 }
+  );
+} else {
+  document.getElementById("status").textContent = "GPS não suportado.";
+}
+
+drawDial(0);
+requestAnimationFrame(animate);
+</script>
 </body>
 </html>
